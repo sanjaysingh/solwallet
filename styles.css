@@ -1,0 +1,707 @@
+body {
+    padding-bottom: 2rem;
+}
+
+.container {
+    max-width: 720px;
+}
+
+#main-wallet-view {
+    margin-top: 1rem;
+}
+
+.card {
+    margin-bottom: 1.5rem;
+}
+
+.private-key-display {
+    word-break: break-all;
+    font-family: monospace;
+    background-color: var(--bs-secondary-bg);
+    padding: 0.75rem;
+    border-radius: var(--bs-border-radius);
+    border: 1px solid var(--bs-border-color);
+}
+
+.address-display {
+    word-break: break-all;
+    font-family: monospace;
+    font-size: 1.1rem;
+}
+
+.balance-display {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.balance-fiat {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+    margin-top: 0.1rem;
+}
+
+/* Alert Placeholder for Centering */
+#alert-placeholder {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    width: auto;
+    max-width: 90%;
+    pointer-events: none; /* Allow clicks to pass through container */
+}
+
+#alert-placeholder .alert {
+    pointer-events: auto; /* Re-enable clicks on actual alerts */
+    margin: 0;
+    display: block;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(var(--bs-body-bg-rgb), 0.7);
+    z-index: 1060;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Input group styling for copying */
+.input-group .btn {
+     z-index: 3;
+}
+
+/* Address display in input groups - prevent overflow */
+.input-group .address-display {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+/* Copy button animation */
+.btn {
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.btn i {
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.btn i.bi-check-lg {
+    transform: scale(1.2);
+    font-weight: bold;
+}
+
+/* Success button styling for copy feedback */
+.btn-success {
+    border-color: var(--bs-success) !important;
+    background-color: var(--bs-success) !important;
+    color: white !important;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+/* Vue.js v-cloak directive to hide uncompiled templates */
+[v-cloak] {
+    display: none !important;
+}
+
+/* Alert transitions - simple and stable */
+.alert-fade-enter-active, .alert-fade-leave-active {
+    transition: all 0.25s ease;
+}
+
+.alert-fade-enter-from, .alert-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+}
+
+.alert-fade-enter-to, .alert-fade-leave-from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Disabled tab styling */
+.nav-link:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Code styling for RPC endpoints */
+code {
+    font-size: 0.9em;
+    word-break: break-all;
+}
+
+/* Badge styling improvements */
+.badge {
+    font-size: 0.75em;
+}
+
+/* Ensure proper spacing for icons */
+.bi {
+    vertical-align: -0.125em;
+}
+
+/* Card shadow improvements */
+.card.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.network-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--bs-secondary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+}
+
+.network-toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.network-toolbar-row .form-label {
+    margin-bottom: 0;
+    flex: 0 0 auto;
+    font-weight: 500;
+}
+
+.network-toolbar-row .form-select {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.network-status {
+    font-size: 0.8125rem;
+}
+
+.open-wallet-section + .open-wallet-section {
+    margin-top: 1.25rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid var(--bs-border-color);
+}
+
+.open-wallet-section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.6rem;
+}
+
+.create-wallet-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.create-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 4.5rem;
+    padding: 0.65rem 0.4rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background: transparent;
+    color: var(--bs-body-color);
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.create-choice i {
+    font-size: 1.15rem;
+    color: var(--bs-primary);
+}
+
+.create-choice:hover:not(:disabled) {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.create-choice:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+.create-choice:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.import-alt {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.75rem;
+}
+
+.import-passkey-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--bs-primary-border-subtle);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+    font-size: 0.875rem;
+    line-height: 1.2;
+}
+
+.import-passkey-btn i {
+    font-size: 1rem;
+}
+
+.import-passkey-btn:hover:not(:disabled) {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary);
+    color: var(--bs-white);
+}
+
+.import-passkey-btn:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+.import-passkey-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wallet-balance-hero {
+    position: relative;
+    text-align: center;
+    padding: 0.15rem 2.5rem 0.75rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.balance-refresh {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--bs-border-radius);
+    background: transparent;
+    color: var(--bs-secondary-color);
+}
+
+.balance-refresh:hover:not(:disabled) {
+    color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.balance-refresh:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+.balance-refresh:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.account-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.account-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.account-row-info {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.account-row .address-display {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.account-row-balance {
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+}
+
+.account-row-fiat {
+    color: var(--bs-tertiary-color);
+}
+
+.account-row-fiat::before {
+    content: "·";
+    margin: 0 0.35rem;
+}
+
+.account-row .btn {
+    flex: 0 0 auto;
+}
+
+.session-panel-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    padding: 0.75rem 1rem;
+    color: inherit;
+    font-weight: 500;
+}
+
+.session-panel-toggle:hover {
+    background-color: var(--bs-tertiary-bg);
+}
+
+.session-panel-toggle:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: -2px;
+}
+
+/* Input group text styling */
+.input-group-text {
+    font-size: 0.875rem;
+}
+
+/* Alert improvements */
+.alert {
+    border: 1px solid transparent;
+    border-radius: var(--bs-border-radius);
+}
+
+.alert-success {
+    border-color: var(--bs-success-border-subtle);
+}
+
+.alert-danger {
+    border-color: var(--bs-danger-border-subtle);
+}
+
+.alert-warning {
+    border-color: var(--bs-warning-border-subtle);
+}
+
+.alert-info {
+    border-color: var(--bs-info-border-subtle);
+}
+
+/* Form control improvements */
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Mobile-first responsive improvements */
+@media (max-width: 768px) {
+    .container {
+        max-width: 100%;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    /* Header adjustments for mobile */
+    header {
+        padding: 0.75rem !important;
+        flex-wrap: wrap;
+    }
+    
+    header h1 {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Card spacing for mobile */
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    /* Tab improvements for mobile */
+    .nav-pills .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Form improvements for mobile */
+    .form-control, .form-select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 0.75rem;
+    }
+    
+    /* Button improvements for mobile */
+    .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8125rem;
+    }
+    
+    /* Address and balance display for mobile */
+    .address-display {
+        font-size: 0.875rem;
+        word-break: break-all;
+        line-height: 1.3;
+    }
+    
+    .balance-display {
+        font-size: 1.125rem;
+    }
+
+    .balance-fiat {
+        font-size: 0.9375rem;
+    }
+
+    .network-toolbar {
+        padding: 0.75rem;
+    }
+
+    .network-toolbar-row {
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .network-toolbar-row .form-label {
+        width: 100%;
+    }
+
+    .account-row {
+        align-items: stretch;
+    }
+
+    .account-row-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        justify-content: center;
+    }
+
+    .account-row .address-display {
+        white-space: nowrap;
+        font-size: 0.875rem;
+    }
+
+    .account-row .btn {
+        min-width: 44px;
+        align-self: center;
+    }
+    
+    /* Input group adjustments for mobile */
+    .input-group {
+        flex-wrap: nowrap;
+    }
+    
+    .input-group .btn {
+        padding: 0.75rem 0.75rem;
+        min-width: 44px; /* Touch target size */
+    }
+    
+    /* Private key display for mobile */
+    .private-key-display {
+        font-size: 0.8125rem;
+        padding: 0.75rem;
+        line-height: 1.4;
+    }
+    
+    /* Alert improvements for mobile */
+    #alert-placeholder {
+        max-width: 95%;
+        top: 0.5rem;
+    }
+    
+    .alert {
+        font-size: 0.875rem;
+        padding: 0.75rem;
+    }
+    
+    /* QR Code container for mobile */
+    .qr-code-container {
+        padding: 0.75rem;
+        margin-top: 0.75rem;
+    }
+    
+    .qr-code-container canvas,
+    .qr-code-container img,
+    .qr-code-container svg {
+        max-width: 200px;
+        max-height: 200px;
+    }
+    
+    /* Theme toggle for mobile */
+    .theme-toggle {
+        font-size: 1.125rem;
+        padding: 0.25rem;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .container {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    header h1 {
+        font-size: 1.125rem !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    .nav-pills .nav-link {
+        padding: 0.5rem;
+        font-size: 0.8125rem;
+    }
+
+    .create-choice {
+        font-size: 0.75rem;
+        min-height: 4.25rem;
+        padding: 0.55rem 0.25rem;
+    }
+    
+    .address-display {
+        font-size: 0.75rem;
+        word-break: break-all;
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .balance-display {
+        font-size: 1rem;
+    }
+
+    .balance-fiat {
+        font-size: 0.875rem;
+    }
+
+    .account-row .address-display {
+        font-size: 0.75rem;
+    }
+    
+    /* Keep input group on one line even on very small screens */
+    .input-group {
+        flex-wrap: nowrap;
+    }
+    
+    .input-group .form-control {
+        flex: 1 1 auto;
+        min-width: 0; /* Allow shrinking */
+        font-size: 0.75rem; /* Smaller font for very small screens */
+    }
+    
+    .input-group .btn {
+        flex: 0 0 auto;
+        padding: 0.75rem 0.5rem; /* Reduce horizontal padding */
+        min-width: 40px; /* Minimum touch target */
+    }
+    
+    .qr-code-container canvas,
+    .qr-code-container img,
+    .qr-code-container svg {
+        max-width: 180px;
+        max-height: 180px;
+    }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+    .btn, .form-control, .nav-link, .session-panel-toggle, .create-choice, .import-passkey-btn, .balance-refresh {
+        min-height: 44px; /* Apple's recommended touch target size */
+    }
+    
+    .btn:focus, .form-control:focus, .nav-link:focus {
+        outline: 2px solid var(--bs-primary);
+        outline-offset: 2px;
+    }
+}
+
+/* Button group improvements */
+.btn-group .btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Tab improvements */
+.nav-pills .nav-link.active {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.nav-pills .nav-link:hover:not(.active):not(:disabled) {
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+/* Header improvements */
+header {
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.app-title-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-shrink: 0;
+    border-radius: 0.35rem;
+}
+
+/* Ensure proper contrast for theme toggle */
+.theme-toggle:hover {
+    opacity: 0.8;
+}
+
+/* QR Code Container Styling */
+.qr-code-container {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: var(--bs-border-radius);
+    line-height: 0;
+}
+
+.qr-code-container canvas,
+.qr-code-container img,
+.qr-code-container svg {
+    max-width: 100%;
+    height: auto;
+} 

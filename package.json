@@ -1,0 +1,15 @@
+{
+  "name": "solwallet",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "vendor": "node scripts/vendor-libs.mjs",
+    "vendor:check": "node scripts/vendor-libs.mjs --check"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0",
+    "vitest": "3.2.7"
+  }
+}
