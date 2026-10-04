@@ -24,9 +24,11 @@ describe('vendored library manifest', () => {
         expect(errors).toEqual([]);
     });
 
-    it('has no CDN script or stylesheet in index.html', async () => {
+    it('keeps Cloudflare Turnstile as the only CDN script in index.html', async () => {
         const html = await readFile(join(ROOT, 'index.html'), 'utf8');
-        expect(listCdnUrls(html)).toEqual([]);
+        expect(listCdnUrls(html)).toEqual([
+            'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit',
+        ]);
     });
 
     it('rewrites HTML data-lib refs and README tree from the manifest', () => {

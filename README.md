@@ -15,7 +15,7 @@ A self-contained Solana wallet for testing and development. Create or import a k
 - Devnet (default), Testnet, Mainnet, and a custom RPC, with `?network=` deep links
 - SOL balances, a USD estimate from the Pyth SOL/USD push-oracle account on mainnet, and SPL token sends
 - Network fee quote, rent check, simulation, then send, with a Solana Explorer link
-- Receive QR codes, and a 1 SOL airdrop on Devnet and Testnet via `requestAirdrop`
+- Receive QR codes, and a Devnet and Testnet faucet that sends 0.01 SOL after a captcha
 - In-memory previous sessions on this page load, cleared on refresh
 
 Passkey wallets need HTTPS or `http://localhost` and an authenticator with the WebAuthn PRF extension. The PRF output is SHA-256'd into an ed25519 seed (`solwallet:v1:prf`). Importing that passkey reopens the same address.
@@ -30,7 +30,7 @@ python -m http.server 8000
 
 Then visit `http://localhost:8000`.
 
-Devnet is the default so the airdrop works. The shared cluster faucet often refuses further payouts for the day and tells you to use [faucet.solana.com](https://faucet.solana.com), which has its own limit.
+Devnet is the default. On Devnet or Testnet, the Receive tab can claim 0.01 SOL from the faucet after a captcha. The claim uses the network selected in the wallet. That drip is sent from a wallet configured on the faucet worker, once per address per day on that network.
 
 ## Technical details
 

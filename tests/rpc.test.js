@@ -25,9 +25,9 @@ describe('rpcCall', () => {
             error: { message: 'rate limited' },
         }))).rejects.toThrow('rate limited');
         await expect(rpcCall('https://rpc.example', 'getBalance', [], async () => jsonResponse({}, false))).rejects.toThrow('HTTP 500');
-        await expect(rpcCall('https://rpc.example', 'requestAirdrop', [], async () => jsonResponse({
-            error: { code: 429, message: 'airdrop limit reached' },
-        }, false))).rejects.toThrow('airdrop limit reached');
+        await expect(rpcCall('https://rpc.example', 'getBalance', [], async () => jsonResponse({
+            error: { code: 429, message: 'rate limited' },
+        }, false))).rejects.toThrow('rate limited');
     });
 });
 

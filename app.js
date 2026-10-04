@@ -38,10 +38,16 @@ import {
     getLatestBlockhash,
     getMinimumBalanceForRentExemption,
     getTokenAccountsByOwner,
-    requestAirdrop,
     sendTransaction as rpcSendTransaction,
     simulateTransaction,
 } from './rpc.js?v=__CACHE_VERSION__';
+import {
+    FAUCET_TURNSTILE_SITE_KEY,
+    isFaucetNetwork,
+    isFaucetTurnstileAlreadyMounted,
+    requestFaucetDrip,
+    shouldMountFaucetTurnstileOnNetworkChange,
+} from './faucet.js?v=__CACHE_VERSION__';
 import {
     assertFeeLeavesRent,
     assertSolTransferAffordable,
@@ -55,8 +61,6 @@ import {
 } from './tx.js?v=__CACHE_VERSION__';
 
 const { createApp, ref, watch, onMounted, computed, nextTick } = Vue;
-
-const AIRDROP_LAMPORTS = 1_000_000_000;
 
 createApp({
     setup() {
@@ -131,15 +135,15 @@ createApp({
         const walletRecords = [];
         const isWalletInitialized = ref(false);
 
-        const airdropAvailable = computed(() =>
-            selectedNetwork.value === 'devnet' || selectedNetwork.value === 'testnet'
-        );
-        const airdropLoading = ref(false);
-        const airdropBusyAddress = ref('');
-        const airdropStatus = ref('');
-        const airdropStatusOk = ref(false);
-        const airdropExplorerUrl = ref('');
-        const airdropHelpUrl = ref('');
+        const faucetAvailable = computed(() => isFaucetNetwork(selectedNetwork.value));
+        const faucetTurnstileEl = ref(null);
+        const faucetTurnstileToken = ref('');
+        const faucetTurnstileWidgetId = ref(null);
+        const faucetLoading = ref(false);
+        const faucetBusyAddress = ref('');
+        const faucetStatus = ref('');
+        const faucetStatusOk = ref(false);
+        const faucetExplorerUrl = ref('');
 
         const getNetworkName = () => {
             const network = availableNetworks.value.find((item) => item.id === selectedNetwork.value);
@@ -463,10 +467,10 @@ createApp({
             selectedPreviousSession.value = '';
             walletSource.value = '';
             pendingWalletSource = '';
-            airdropStatus.value = '';
-            airdropStatusOk.value = false;
-            airdropExplorerUrl.value = '';
-            airdropHelpUrl.value = '';
+            teardownFaucetTurnstile();
+            faucetStatus.value = '';
+            faucetStatusOk.value = false;
+            faucetExplorerUrl.value = '';
             updateWalletStateUI();
             showAlert('Wallet session cleared.', 'info');
         };
@@ -890,36 +894,96 @@ createApp({
             });
         };
 
-        const requestDevnetAirdrop = async (address) => {
-            airdropStatus.value = '';
-            airdropStatusOk.value = false;
-            airdropExplorerUrl.value = '';
-            airdropHelpUrl.value = '';
-            if (!airdropAvailable.value) {
-                showAlert('Airdrops are only available on Devnet and Testnet.', 'warning');
+        const teardownFaucetTurnstile = () => {
+            if (faucetTurnstileWidgetId.value != null && window.turnstile) {
+                try {
+                    window.turnstile.remove(faucetTurnstileWidgetId.value);
+                } catch {
+                    // ignore
+                }
+            }
+            faucetTurnstileWidgetId.value = null;
+            faucetTurnstileToken.value = '';
+            if (faucetTurnstileEl.value) {
+                faucetTurnstileEl.value.innerHTML = '';
+            }
+        };
+
+        const mountFaucetTurnstile = async () => {
+            await nextTick();
+            if (!faucetAvailable.value || !faucetTurnstileEl.value) {
                 return;
             }
-            airdropLoading.value = true;
-            airdropBusyAddress.value = address;
+            if (!window.turnstile) {
+                setTimeout(mountFaucetTurnstile, 300);
+                return;
+            }
+            if (isFaucetTurnstileAlreadyMounted(
+                faucetTurnstileWidgetId.value,
+                faucetTurnstileEl.value,
+            )) {
+                return;
+            }
+            teardownFaucetTurnstile();
+            faucetTurnstileWidgetId.value = window.turnstile.render(faucetTurnstileEl.value, {
+                sitekey: FAUCET_TURNSTILE_SITE_KEY,
+                callback: (token) => {
+                    faucetTurnstileToken.value = token;
+                },
+                'expired-callback': () => {
+                    faucetTurnstileToken.value = '';
+                },
+                'error-callback': () => {
+                    faucetTurnstileToken.value = '';
+                },
+                theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
+            });
+        };
+
+        const resetFaucetTurnstile = () => {
+            faucetTurnstileToken.value = '';
+            if (faucetTurnstileWidgetId.value != null && window.turnstile) {
+                window.turnstile.reset(faucetTurnstileWidgetId.value);
+            } else {
+                mountFaucetTurnstile();
+            }
+        };
+
+        const receiveFromFaucet = async (address) => {
+            faucetStatus.value = '';
+            faucetStatusOk.value = false;
+            faucetExplorerUrl.value = '';
+            if (!faucetAvailable.value) {
+                showAlert('The faucet is only available on Devnet and Testnet.', 'warning');
+                return;
+            }
+            if (!faucetTurnstileToken.value) {
+                showAlert('Complete the captcha first.', 'warning');
+                return;
+            }
+            faucetLoading.value = true;
+            faucetBusyAddress.value = address;
             try {
-                const signature = await requestAirdrop(rpcEndpoint.value, address, AIRDROP_LAMPORTS);
-                airdropStatusOk.value = true;
-                airdropStatus.value = 'Requested 1 SOL.';
-                airdropExplorerUrl.value = buildTxExplorerUrl(signature, selectedNetwork.value);
-                showAlert('Airdrop requested. Waiting for confirmation.', 'success');
-                await confirmSignature(rpcEndpoint.value, signature);
-                airdropStatus.value = 'Airdrop confirmed: 1 SOL.';
+                const result = await requestFaucetDrip({
+                    address,
+                    turnstileToken: faucetTurnstileToken.value,
+                    chain: selectedNetwork.value,
+                });
+                faucetStatusOk.value = true;
+                faucetStatus.value = `Sent ${result.amount} ${result.symbol}.`;
+                faucetExplorerUrl.value = result.explorerTxUrl || buildTxExplorerUrl(result.txHash, selectedNetwork.value);
+                showAlert(`Faucet sent ${result.amount} ${result.symbol} to this account.`, 'success');
+                resetFaucetTurnstile();
                 await refreshAccounts();
             } catch (err) {
-                airdropStatusOk.value = false;
-                const message = err?.message || 'Airdrop request failed';
-                const help = message.match(/https:\/\/faucet\.solana\.com\S*/);
-                airdropHelpUrl.value = help ? help[0].replace(/[).,]+$/, '') : '';
-                airdropStatus.value = message;
+                faucetStatusOk.value = false;
+                const message = err?.message || 'Faucet request failed';
+                faucetStatus.value = message;
                 showAlert(message, 'danger');
+                resetFaucetTurnstile();
             } finally {
-                airdropLoading.value = false;
-                airdropBusyAddress.value = '';
+                faucetLoading.value = false;
+                faucetBusyAddress.value = '';
             }
         };
 
@@ -929,11 +993,11 @@ createApp({
                 rpcEndpoint.value = network.rpcUrl;
             }
             updateUrlWithNetwork(selectedNetwork.value);
-            if (!airdropAvailable.value) {
-                airdropStatus.value = '';
-                airdropStatusOk.value = false;
-                airdropExplorerUrl.value = '';
-                airdropHelpUrl.value = '';
+            if (!faucetAvailable.value) {
+                teardownFaucetTurnstile();
+                faucetStatus.value = '';
+                faucetStatusOk.value = false;
+                faucetExplorerUrl.value = '';
             }
             await refreshNetworkStatus();
             if (isWalletInitialized.value && seedPhrase.value) {
@@ -973,11 +1037,30 @@ createApp({
             networkStatusClass.value = 'network-status text-primary';
             refreshNetworkStatus();
 
+            watch(selectedNetwork, (networkId, previousId) => {
+                if (previousId != null && networkId !== previousId) {
+                    faucetStatus.value = '';
+                    faucetStatusOk.value = false;
+                    faucetExplorerUrl.value = '';
+                }
+                if (shouldMountFaucetTurnstileOnNetworkChange(
+                    networkId,
+                    document.getElementById('receive-tab-pane'),
+                )) {
+                    mountFaucetTurnstile();
+                } else if (!isFaucetNetwork(networkId)) {
+                    teardownFaucetTurnstile();
+                }
+            });
+
             const receiveTabTrigger = document.getElementById('receive-tab');
             if (receiveTabTrigger) {
                 receiveTabTrigger.addEventListener('shown.bs.tab', () => {
                     if (isWalletInitialized.value) {
                         generateAllQRCodes();
+                    }
+                    if (faucetAvailable.value) {
+                        mountFaucetTurnstile();
                     }
                 });
             }
@@ -1037,17 +1120,18 @@ createApp({
             chainInfo,
             tokenInfo,
             isWalletInitialized,
-            airdropAvailable,
-            airdropLoading,
-            airdropBusyAddress,
-            airdropStatus,
-            airdropStatusOk,
-            airdropExplorerUrl,
-            airdropHelpUrl,
+            faucetAvailable,
+            faucetTurnstileEl,
+            faucetTurnstileToken,
+            faucetLoading,
+            faucetBusyAddress,
+            faucetStatus,
+            faucetStatusOk,
+            faucetExplorerUrl,
             toggleTheme,
             showAlert,
             dismissAlert,
-            requestDevnetAirdrop,
+            receiveFromFaucet,
             toggleSeedVisibility,
             toggleCurrentPrivateKeyVisibility,
             copyPrivateKey,
