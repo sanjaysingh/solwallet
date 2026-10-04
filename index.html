@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="libs/bootstrap-5.3.8.min.css" data-lib="bootstrap-css">
     <link rel="stylesheet" href="libs/bootstrap-icons-1.13.1.min.css" data-lib="bootstrap-icons-css">
     <link rel="stylesheet" href="styles.css?v=__CACHE_VERSION__">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <script src="libs/solana-crypto-2.4.0.min.js" data-lib="solana-crypto"></script>
     <script src="libs/vue-3.5.43-vue.global.prod.min.js" data-lib="vue"></script>
 </head>
@@ -312,27 +313,25 @@
 
                   <div class="tab-pane fade" id="receive-tab-pane" role="tabpanel" aria-labelledby="receive-tab" tabindex="0">
                       <div v-if="isWalletInitialized">
-                        <div v-if="airdropAvailable" class="card shadow-sm mb-4 border-info">
+                        <div v-if="faucetAvailable" class="card shadow-sm mb-4 border-info">
                             <div class="card-body">
                                 <h5 class="card-title mb-2">
-                                    <i class="bi bi-droplet me-1"></i> Request airdrop
+                                    <i class="bi bi-droplet me-1"></i> Receive from faucet
                                 </h5>
                                 <p class="text-muted small mb-3">
-                                    Request 1 SOL from the Devnet or Testnet faucet. Solana limits how often that shared faucet pays out. Choose an account below.
+                                    Claim 0.01 SOL for testing. Complete the captcha once, then choose an account below. You only need to solve it again after a claim, or if it expires.
                                 </p>
-                                <p v-if="airdropStatus" :class="['small mb-0 text-center', airdropStatusOk ? 'text-success' : 'text-danger']">
-                                    <template v-if="airdropStatusOk && airdropExplorerUrl">
-                                        {{ airdropStatus }}
-                                        <a :href="airdropExplorerUrl" target="_blank" rel="noopener noreferrer" class="alert-link ms-1">
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div ref="faucetTurnstileEl"></div>
+                                </div>
+                                <p v-if="faucetStatus" :class="['small mb-0 text-center', faucetStatusOk ? 'text-success' : 'text-danger']">
+                                    <template v-if="faucetStatusOk && faucetExplorerUrl">
+                                        {{ faucetStatus }}
+                                        <a :href="faucetExplorerUrl" target="_blank" rel="noopener noreferrer" class="alert-link ms-1">
                                             View on explorer
                                         </a>
                                     </template>
-                                    <template v-else>
-                                        {{ airdropStatus }}
-                                        <a v-if="airdropHelpUrl" :href="airdropHelpUrl" target="_blank" rel="noopener noreferrer" class="alert-link d-inline-block mt-1">
-                                            Open the Solana faucet
-                                        </a>
-                                    </template>
+                                    <template v-else>{{ faucetStatus }}</template>
                                 </p>
                             </div>
                         </div>
@@ -348,16 +347,16 @@
                                       </button>
                                  </div>
                                 <div class="qr-code-container" :data-qr-address="account.address"></div>
-                                <div v-if="airdropAvailable" class="mt-3">
+                                <div v-if="faucetAvailable" class="mt-3">
                                     <button
                                         type="button"
                                         class="btn btn-info"
-                                        :disabled="airdropLoading"
-                                        @click="requestDevnetAirdrop(account.address)"
+                                        :disabled="faucetLoading || !faucetTurnstileToken"
+                                        @click="receiveFromFaucet(account.address)"
                                     >
-                                        <span v-if="airdropLoading && airdropBusyAddress === account.address" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        <span v-if="faucetLoading && faucetBusyAddress === account.address" class="spinner-border spinner-border-sm me-1" role="status"></span>
                                         <i v-else class="bi bi-droplet me-1"></i>
-                                        Request airdrop
+                                        Receive from faucet
                                     </button>
                                 </div>
                             </div>

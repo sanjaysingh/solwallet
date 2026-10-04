@@ -178,7 +178,9 @@ export async function checkVendored(files, html, readme) {
             errors.push(`README.md does not list ${file.dest}`);
         }
     }
-    const cdn = listCdnUrls(html);
+    const cdn = listCdnUrls(html).filter(
+        (url) => !url.startsWith('https://challenges.cloudflare.com/turnstile/'),
+    );
     if (cdn.length) {
         errors.push(`unexpected CDN urls in index.html: ${cdn.join(', ')}`);
     }

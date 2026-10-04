@@ -39,6 +39,7 @@ npm run vendor -- --force
 ## Policy
 
 - Do not add jsDelivr, unpkg, cdnjs, or other CDN tags.
+- Cloudflare Turnstile `api.js` is the one allowed remote script. The faucet captcha has to talk to Cloudflare.
 - Commit the files in this folder. GitHub Pages deploys the repo as-is.
-- Blockchain RPCs are allowed network calls. They are not UI libraries.
+- Blockchain RPCs and the faucet worker are allowed network calls. They are not UI libraries.
 - Vitest and jsdom are dev-only and are not loaded by `index.html`.

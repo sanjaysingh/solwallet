@@ -69,10 +69,6 @@ export function getSignatureStatuses(rpcUrl, signature, fetchImpl) {
     ], fetchImpl);
 }
 
-export function requestAirdrop(rpcUrl, address, lamports, fetchImpl) {
-    return rpcCall(rpcUrl, 'requestAirdrop', [address, lamports], fetchImpl);
-}
-
 export function getMinimumBalanceForRentExemption(rpcUrl, dataLength = 0, fetchImpl) {
     return rpcCall(rpcUrl, 'getMinimumBalanceForRentExemption', [dataLength], fetchImpl);
 }
