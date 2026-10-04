@@ -14,11 +14,12 @@ export async function rpcCall(rpcUrl, method, params, fetchImpl = globalThis.fet
     } catch (err) {
         throw new Error(err?.message || 'RPC request failed');
     }
+    const body = await response.json().catch(() => null);
     if (!response.ok) {
-        throw new Error(`RPC HTTP ${response.status}`);
+        const message = body?.error?.message || `RPC HTTP ${response.status}`;
+        throw new Error(message);
     }
-    const body = await response.json();
-    if (body.error) {
+    if (body?.error) {
         const message = body.error.message || 'RPC error';
         throw new Error(message);
     }

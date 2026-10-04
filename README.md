@@ -30,7 +30,7 @@ python -m http.server 8000
 
 Then visit `http://localhost:8000`.
 
-Devnet is the default so the airdrop works. Public devnet RPCs rate-limit airdrops; the page shows the RPC error when that happens.
+Devnet is the default so the airdrop works. The shared cluster faucet often refuses further payouts for the day and tells you to use [faucet.solana.com](https://faucet.solana.com), which has its own limit.
 
 ## Technical details
 

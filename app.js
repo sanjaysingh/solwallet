@@ -139,6 +139,7 @@ createApp({
         const airdropStatus = ref('');
         const airdropStatusOk = ref(false);
         const airdropExplorerUrl = ref('');
+        const airdropHelpUrl = ref('');
 
         const getNetworkName = () => {
             const network = availableNetworks.value.find((item) => item.id === selectedNetwork.value);
@@ -465,6 +466,7 @@ createApp({
             airdropStatus.value = '';
             airdropStatusOk.value = false;
             airdropExplorerUrl.value = '';
+            airdropHelpUrl.value = '';
             updateWalletStateUI();
             showAlert('Wallet session cleared.', 'info');
         };
@@ -892,6 +894,7 @@ createApp({
             airdropStatus.value = '';
             airdropStatusOk.value = false;
             airdropExplorerUrl.value = '';
+            airdropHelpUrl.value = '';
             if (!airdropAvailable.value) {
                 showAlert('Airdrops are only available on Devnet and Testnet.', 'warning');
                 return;
@@ -910,6 +913,8 @@ createApp({
             } catch (err) {
                 airdropStatusOk.value = false;
                 const message = err?.message || 'Airdrop request failed';
+                const help = message.match(/https:\/\/faucet\.solana\.com\S*/);
+                airdropHelpUrl.value = help ? help[0].replace(/[).,]+$/, '') : '';
                 airdropStatus.value = message;
                 showAlert(message, 'danger');
             } finally {
@@ -928,6 +933,7 @@ createApp({
                 airdropStatus.value = '';
                 airdropStatusOk.value = false;
                 airdropExplorerUrl.value = '';
+                airdropHelpUrl.value = '';
             }
             await refreshNetworkStatus();
             if (isWalletInitialized.value && seedPhrase.value) {
@@ -1037,6 +1043,7 @@ createApp({
             airdropStatus,
             airdropStatusOk,
             airdropExplorerUrl,
+            airdropHelpUrl,
             toggleTheme,
             showAlert,
             dismissAlert,

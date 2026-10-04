@@ -318,7 +318,7 @@
                                     <i class="bi bi-droplet me-1"></i> Request airdrop
                                 </h5>
                                 <p class="text-muted small mb-3">
-                                    Request 1 SOL from the cluster faucet for testing. Public RPCs often rate-limit this. Choose an account below.
+                                    Request 1 SOL from the Devnet or Testnet faucet. Solana limits how often that shared faucet pays out. Choose an account below.
                                 </p>
                                 <p v-if="airdropStatus" :class="['small mb-0 text-center', airdropStatusOk ? 'text-success' : 'text-danger']">
                                     <template v-if="airdropStatusOk && airdropExplorerUrl">
@@ -327,7 +327,12 @@
                                             View on explorer
                                         </a>
                                     </template>
-                                    <template v-else>{{ airdropStatus }}</template>
+                                    <template v-else>
+                                        {{ airdropStatus }}
+                                        <a v-if="airdropHelpUrl" :href="airdropHelpUrl" target="_blank" rel="noopener noreferrer" class="alert-link d-inline-block mt-1">
+                                            Open the Solana faucet
+                                        </a>
+                                    </template>
                                 </p>
                             </div>
                         </div>
